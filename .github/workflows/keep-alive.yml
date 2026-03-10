@@ -1,0 +1,26 @@
+name: Keep Render Alive
+
+on:
+  schedule:
+    # Runs every 14 minutes to prevent Render free tier sleep (15 min threshold)
+    - cron: "*/14 * * * *"
+  workflow_dispatch: # Allow manual trigger
+
+jobs:
+  ping:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Ping backend
+        run: |
+          echo "Pinging backend at $(date)"
+          curl -f --max-time 60 "${{ secrets.RENDER_BACKEND_URL }}/health" \
+            && echo "Backend is alive" \
+            || echo "Backend wake-up ping sent (may have been sleeping)"
+
+      - name: Ping frontend (optional)
+        if: ${{ secrets.RENDER_FRONTEND_URL != '' }}
+        run: |
+          echo "Pinging frontend at $(date)"
+          curl -f --max-time 60 "${{ secrets.RENDER_FRONTEND_URL }}" \
+            && echo "Frontend is alive" \
+            || echo "Frontend wake-up ping sent"
