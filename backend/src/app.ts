@@ -14,12 +14,11 @@ const app = express();
 
 // ─── CORS ─────────────────────────────────────────────────────────────────────
 const allowedOrigins = [
+  "https://stock-floww.vercel.app",  // add your real Vercel URL
   process.env.FRONTEND_URL || "http://localhost:8080",
   "http://localhost:8080",
-  "http://localhost:5173",
-  "http://localhost:5174",
-  "http://localhost:3000",
 ];
+
 
 app.use(
   cors({
