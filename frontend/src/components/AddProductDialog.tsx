@@ -1,4 +1,4 @@
-import { useState, useRef } from "react";
+import { useState } from "react";
 import {
   Dialog,
   DialogContent,
@@ -10,21 +10,17 @@ import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { subcategories } from "@/data/mockData";
 import { toast } from "sonner";
-import { ImagePlus, X } from "lucide-react";
 import type { Product } from "@/context/ProductContext";
 
 interface AddProductDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  onAdd: (product: Omit<Product, "id">, imageFile?: File) => Promise<void>;
+  onAdd: (product: Omit<Product, "id">) => Promise<void>;
 }
 
 export default function AddProductDialog({ open, onOpenChange, onAdd }: AddProductDialogProps) {
   const clothesSubs = subcategories["Clothes"] || [];
   const [submitting, setSubmitting] = useState(false);
-  const [imageFile, setImageFile] = useState<File | null>(null);
-  const [imagePreview, setImagePreview] = useState<string | null>(null);
-  const fileInputRef = useRef<HTMLInputElement>(null);
 
   const [form, setForm] = useState({
     name: "",
@@ -39,46 +35,23 @@ export default function AddProductDialog({ open, onOpenChange, onAdd }: AddProdu
     material: "",
   });
 
-  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (file) {
-      if (file.size > 5 * 1024 * 1024) {
-        toast.error("Image must be less than 5MB");
-        return;
-      }
-      setImageFile(file);
-      const reader = new FileReader();
-      reader.onloadend = () => setImagePreview(reader.result as string);
-      reader.readAsDataURL(file);
-    }
-  };
-
-  const clearImage = () => {
-    setImageFile(null);
-    setImagePreview(null);
-    if (fileInputRef.current) fileInputRef.current.value = "";
-  };
-
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setSubmitting(true);
     try {
-      await onAdd(
-        {
-          name: form.name,
-          category: "Clothes",
-          subcategory: form.subcategory,
-          price: parseFloat(form.price),
-          cost: parseFloat(form.cost),
-          stock: parseInt(form.stock),
-          barcode: form.barcode,
-          lowStockThreshold: parseInt(form.lowStockThreshold),
-          size: form.size || undefined,
-          color: form.color || undefined,
-          material: form.material || undefined,
-        },
-        imageFile || undefined
-      );
+      await onAdd({
+        name: form.name,
+        category: "Clothes",
+        subcategory: form.subcategory,
+        price: parseFloat(form.price),
+        cost: parseFloat(form.cost),
+        stock: parseInt(form.stock),
+        barcode: form.barcode,
+        lowStockThreshold: parseInt(form.lowStockThreshold),
+        size: form.size || undefined,
+        color: form.color || undefined,
+        material: form.material || undefined,
+      });
       toast.success(`Product "${form.name}" added successfully!`);
       onOpenChange(false);
       setForm({
@@ -93,7 +66,6 @@ export default function AddProductDialog({ open, onOpenChange, onAdd }: AddProdu
         color: "",
         material: "",
       });
-      clearImage();
     } catch {
       toast.error("Failed to add product");
     } finally {
@@ -108,41 +80,6 @@ export default function AddProductDialog({ open, onOpenChange, onAdd }: AddProdu
           <DialogTitle>Add New Product</DialogTitle>
         </DialogHeader>
         <form onSubmit={handleSubmit} className="space-y-4">
-          {/* Image Upload */}
-          <div className="space-y-2">
-            <Label>Product Image</Label>
-            <div className="flex items-center gap-3">
-              {imagePreview ? (
-                <div className="relative w-20 h-20 rounded-lg overflow-hidden border border-border">
-                  <img src={imagePreview} alt="Preview" className="w-full h-full object-cover" />
-                  <button
-                    type="button"
-                    onClick={clearImage}
-                    className="absolute top-0.5 right-0.5 p-0.5 rounded-full bg-destructive text-destructive-foreground"
-                  >
-                    <X className="w-3 h-3" />
-                  </button>
-                </div>
-              ) : (
-                <button
-                  type="button"
-                  onClick={() => fileInputRef.current?.click()}
-                  className="w-20 h-20 rounded-lg border-2 border-dashed border-border flex flex-col items-center justify-center gap-1 text-muted-foreground hover:border-primary/50 hover:text-primary transition-colors"
-                >
-                  <ImagePlus className="w-5 h-5" />
-                  <span className="text-[10px]">Upload</span>
-                </button>
-              )}
-              <input
-                ref={fileInputRef}
-                type="file"
-                accept="image/*"
-                onChange={handleImageChange}
-                className="hidden"
-              />
-            </div>
-          </div>
-
           <div className="space-y-2">
             <Label htmlFor="name">Product Name</Label>
             <Input id="name" value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} required />
@@ -163,11 +100,11 @@ export default function AddProductDialog({ open, onOpenChange, onAdd }: AddProdu
 
           <div className="grid grid-cols-2 gap-3">
             <div className="space-y-2">
-              <Label htmlFor="price">Price ($)</Label>
+              <Label htmlFor="price">Price (Rs.)</Label>
               <Input id="price" type="number" step="0.01" value={form.price} onChange={(e) => setForm({ ...form, price: e.target.value })} required />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="cost">Cost ($)</Label>
+              <Label htmlFor="cost">Cost (Rs.)</Label>
               <Input id="cost" type="number" step="0.01" value={form.cost} onChange={(e) => setForm({ ...form, cost: e.target.value })} required />
             </div>
           </div>

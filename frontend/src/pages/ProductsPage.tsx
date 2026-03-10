@@ -30,8 +30,8 @@ export default function ProductsPage() {
     toast.success(`"${product.name}" removed`);
   };
 
-  const handleAdd = async (product: Omit<Product, "id">, imageFile?: File) => {
-    await addProduct(product, imageFile);
+  const handleAdd = async (product: Omit<Product, "id">) => {
+    await addProduct(product);
   };
 
   if (loading) {
@@ -125,7 +125,7 @@ function ProductCard({ product, onRemove }: { product: Product; onRemove: (p: Pr
       <div className="space-y-1 md:space-y-1.5">
         <div className="flex items-start justify-between gap-1">
           <h3 className="font-semibold text-xs md:text-sm leading-tight line-clamp-2">{product.name}</h3>
-          <span className="text-xs md:text-sm font-bold text-primary shrink-0">${product.price}</span>
+          <span className="text-xs md:text-sm font-bold text-primary shrink-0">Rs. {product.price}</span>
         </div>
         <p className="text-[10px] md:text-xs text-muted-foreground">{product.subcategory}</p>
         <div className="flex items-center justify-between pt-1">

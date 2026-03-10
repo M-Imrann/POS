@@ -1,34 +1,8 @@
 import { Router, Response } from "express";
-import multer from "multer";
-import path from "path";
-import fs from "fs";
-import { v4 as uuidv4 } from "uuid";
 import { query, queryOne } from "../db";
-import { authenticate, requireAdmin, AuthRequest } from "../middleware";
+import { authenticate, AuthRequest } from "../middleware";
 
 const router = Router();
-
-// ─── File Upload Setup ────────────────────────────────────────────────────────
-const uploadsDir = path.resolve(process.env.UPLOADS_DIR || "./uploads");
-if (!fs.existsSync(uploadsDir)) fs.mkdirSync(uploadsDir, { recursive: true });
-
-const storage = multer.diskStorage({
-  destination: (_req, _file, cb) => cb(null, uploadsDir),
-  filename: (_req, file, cb) => {
-    const ext = path.extname(file.originalname).toLowerCase();
-    cb(null, `${uuidv4()}${ext}`);
-  },
-});
-
-const upload = multer({
-  storage,
-  limits: { fileSize: 5 * 1024 * 1024 }, // 5 MB
-  fileFilter: (_req, file, cb) => {
-    const allowed = [".jpg", ".jpeg", ".png", ".webp", ".gif"];
-    const ext = path.extname(file.originalname).toLowerCase();
-    cb(null, allowed.includes(ext));
-  },
-});
 
 // ─── GET /api/products ────────────────────────────────────────────────────────
 router.get("/", authenticate, async (req: AuthRequest, res: Response) => {
@@ -59,7 +33,7 @@ router.get("/", authenticate, async (req: AuthRequest, res: Response) => {
 });
 
 // ─── POST /api/products ───────────────────────────────────────────────────────
-router.post("/", authenticate, upload.single("image"), async (req: AuthRequest, res: Response) => {
+router.post("/", authenticate, async (req: AuthRequest, res: Response) => {
   try {
     const { name, category, subcategory, price, cost, stock, barcode,
             size, color, material, low_stock_threshold } = req.body as Record<string, string>;
@@ -69,16 +43,11 @@ router.post("/", authenticate, upload.single("image"), async (req: AuthRequest, 
       return;
     }
 
-    let imageUrl: string | null = null;
-    if (req.file) {
-      imageUrl = `/uploads/${req.file.filename}`;
-    }
-
     const [product] = await query(
       `INSERT INTO products
         (user_id, name, category, subcategory, price, cost, stock, barcode,
-         size, color, material, image_url, low_stock_threshold)
-       VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13)
+         size, color, material, low_stock_threshold)
+       VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12)
        RETURNING *`,
       [
         req.user!.userId,
@@ -92,7 +61,6 @@ router.post("/", authenticate, upload.single("image"), async (req: AuthRequest, 
         size || null,
         color || null,
         material || null,
-        imageUrl,
         parseInt(low_stock_threshold || "10", 10),
       ]
     );
@@ -105,15 +73,14 @@ router.post("/", authenticate, upload.single("image"), async (req: AuthRequest, 
 });
 
 // ─── PUT /api/products/:id ────────────────────────────────────────────────────
-router.put("/:id", authenticate, upload.single("image"), async (req: AuthRequest, res: Response) => {
+router.put("/:id", authenticate, async (req: AuthRequest, res: Response) => {
   try {
     const { id } = req.params;
     const { name, category, subcategory, price, cost, stock, barcode,
             size, color, material, low_stock_threshold } = req.body as Record<string, string>;
 
-    // Ownership check (admins can edit any)
-    const existing = await queryOne<{ id: string; user_id: string; image_url: string | null }>(
-      "SELECT id, user_id, image_url FROM products WHERE id = $1",
+    const existing = await queryOne<{ id: string; user_id: string }>(
+      "SELECT id, user_id FROM products WHERE id = $1",
       [id]
     );
     if (!existing) {
@@ -123,16 +90,6 @@ router.put("/:id", authenticate, upload.single("image"), async (req: AuthRequest
     if (req.user!.role !== "admin" && existing.user_id !== req.user!.userId) {
       res.status(403).json({ error: "Forbidden" });
       return;
-    }
-
-    let imageUrl = existing.image_url;
-    if (req.file) {
-      // Delete old image
-      if (existing.image_url) {
-        const oldPath = path.join(uploadsDir, path.basename(existing.image_url));
-        if (fs.existsSync(oldPath)) fs.unlinkSync(oldPath);
-      }
-      imageUrl = `/uploads/${req.file.filename}`;
     }
 
     const [product] = await query(
@@ -147,9 +104,8 @@ router.put("/:id", authenticate, upload.single("image"), async (req: AuthRequest
         size = $8,
         color = $9,
         material = $10,
-        image_url = $11,
-        low_stock_threshold = COALESCE($12, low_stock_threshold)
-       WHERE id = $13
+        low_stock_threshold = COALESCE($11, low_stock_threshold)
+       WHERE id = $12
        RETURNING *`,
       [
         name || null,
@@ -158,11 +114,10 @@ router.put("/:id", authenticate, upload.single("image"), async (req: AuthRequest
         price ? parseFloat(price) : null,
         cost ? parseFloat(cost) : null,
         stock !== undefined ? parseInt(stock, 10) : null,
-        barcode !== undefined ? barcode || null : existing.image_url,
-        size !== undefined ? size || null : undefined,
-        color !== undefined ? color || null : undefined,
-        material !== undefined ? material || null : undefined,
-        imageUrl,
+        barcode !== undefined ? barcode || null : null,
+        size !== undefined ? size || null : null,
+        color !== undefined ? color || null : null,
+        material !== undefined ? material || null : null,
         low_stock_threshold ? parseInt(low_stock_threshold, 10) : null,
         id,
       ]
@@ -216,8 +171,8 @@ router.delete("/:id", authenticate, async (req: AuthRequest, res: Response) => {
   try {
     const { id } = req.params;
 
-    const existing = await queryOne<{ id: string; user_id: string; image_url: string | null }>(
-      "SELECT id, user_id, image_url FROM products WHERE id = $1",
+    const existing = await queryOne<{ id: string; user_id: string }>(
+      "SELECT id, user_id FROM products WHERE id = $1",
       [id]
     );
     if (!existing) {
@@ -227,12 +182,6 @@ router.delete("/:id", authenticate, async (req: AuthRequest, res: Response) => {
     if (req.user!.role !== "admin" && existing.user_id !== req.user!.userId) {
       res.status(403).json({ error: "Forbidden" });
       return;
-    }
-
-    // Delete associated image
-    if (existing.image_url) {
-      const imgPath = path.join(uploadsDir, path.basename(existing.image_url));
-      if (fs.existsSync(imgPath)) fs.unlinkSync(imgPath);
     }
 
     await query("DELETE FROM products WHERE id = $1", [id]);

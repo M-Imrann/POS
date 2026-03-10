@@ -94,7 +94,7 @@ export default function POSPage() {
       setReceiptOpen(true);
       setCart([]);
       setDiscount(0);
-      toast.success(`Sale completed! Total: $${total.toFixed(2)}`);
+      toast.success(`Sale completed! Total: Rs. ${total.toFixed(0)}`);
     } catch {
       toast.error("Failed to complete sale. Please try again.");
     } finally {
@@ -144,7 +144,7 @@ export default function POSPage() {
                 <p className="font-medium text-sm leading-tight truncate">{product.name}</p>
                 <p className="text-xs text-muted-foreground">{product.subcategory}</p>
                 <div className="flex items-center justify-between mt-1.5">
-                  <span className="font-bold text-sm text-primary">${product.price}</span>
+                  <span className="font-bold text-sm text-primary">Rs. {product.price}</span>
                   <span className="text-xs text-muted-foreground">{product.stock} qty</span>
                 </div>
               </button>
@@ -173,7 +173,7 @@ export default function POSPage() {
                 <div key={item.product.id} className="flex items-center gap-3 py-2 border-b border-border/50">
                   <div className="flex-1 min-w-0">
                     <p className="text-sm font-medium truncate">{item.product.name}</p>
-                    <p className="text-xs text-muted-foreground">${item.product.price} each</p>
+                    <p className="text-xs text-muted-foreground">Rs. {item.product.price} each</p>
                   </div>
                   <div className="flex items-center gap-1.5">
                     <button
@@ -191,7 +191,7 @@ export default function POSPage() {
                     </button>
                   </div>
                   <p className="text-sm font-semibold w-16 text-right">
-                    ${(item.product.price * item.quantity).toFixed(2)}
+                    Rs. {(item.product.price * item.quantity).toFixed(0)}
                   </p>
                   <button
                     onClick={() => updateQuantity(item.product.id, -item.quantity)}
@@ -207,11 +207,11 @@ export default function POSPage() {
           <div className="space-y-2 pt-3 border-t border-border/50">
             <div className="flex justify-between text-sm">
               <span className="text-muted-foreground">Subtotal</span>
-              <span>${subtotal.toFixed(2)}</span>
+              <span>Rs. {subtotal.toFixed(0)}</span>
             </div>
             <div className="flex justify-between text-sm">
               <span className="text-muted-foreground">Tax (8%)</span>
-              <span>${tax.toFixed(2)}</span>
+              <span>Rs. {tax.toFixed(0)}</span>
             </div>
             <div className="flex justify-between text-sm items-center">
               <span className="text-muted-foreground">Discount</span>
@@ -225,7 +225,7 @@ export default function POSPage() {
             </div>
             <div className="flex justify-between font-bold text-lg pt-2 border-t border-border/50">
               <span>Total</span>
-              <span className="text-primary">${total.toFixed(2)}</span>
+              <span className="text-primary">Rs. {total.toFixed(0)}</span>
             </div>
           </div>
 

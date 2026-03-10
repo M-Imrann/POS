@@ -125,7 +125,7 @@ export default function ReportsPage() {
           <div className="grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-4">
             <div className="glass-card p-4">
               <p className="text-xs text-muted-foreground">Total Sales</p>
-              <p className="text-xl md:text-2xl font-bold">${totalRevenue.toFixed(2)}</p>
+              <p className="text-xl md:text-2xl font-bold">Rs. {totalRevenue.toFixed(0)}</p>
             </div>
             <div className="glass-card p-4">
               <p className="text-xs text-muted-foreground">Total Orders</p>
@@ -133,7 +133,7 @@ export default function ReportsPage() {
             </div>
             <div className="glass-card p-4">
               <p className="text-xs text-muted-foreground">Avg. Order</p>
-              <p className="text-xl md:text-2xl font-bold">${avgOrder.toFixed(2)}</p>
+              <p className="text-xl md:text-2xl font-bold">Rs. {avgOrder.toFixed(0)}</p>
             </div>
             <div className="glass-card p-4">
               <p className="text-xs text-muted-foreground">Products Sold</p>
@@ -187,15 +187,15 @@ export default function ReportsPage() {
           <div className="grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-4">
             <div className="glass-card p-4">
               <p className="text-xs text-muted-foreground">Total Revenue</p>
-              <p className="text-xl md:text-2xl font-bold">${totalRevenue.toFixed(2)}</p>
+              <p className="text-xl md:text-2xl font-bold">Rs. {totalRevenue.toFixed(0)}</p>
             </div>
             <div className="glass-card p-4">
               <p className="text-xs text-muted-foreground">Total Cost</p>
-              <p className="text-xl md:text-2xl font-bold text-destructive">${totalCost.toFixed(2)}</p>
+              <p className="text-xl md:text-2xl font-bold text-destructive">Rs. {totalCost.toFixed(0)}</p>
             </div>
             <div className="glass-card p-4">
               <p className="text-xs text-muted-foreground">Net Profit</p>
-              <p className="text-xl md:text-2xl font-bold text-success">${totalProfit.toFixed(2)}</p>
+              <p className="text-xl md:text-2xl font-bold text-success">Rs. {totalProfit.toFixed(0)}</p>
             </div>
             <div className="glass-card p-4">
               <p className="text-xs text-muted-foreground">Margin</p>
@@ -242,9 +242,9 @@ export default function ReportsPage() {
                       {monthlyPnL.map((row) => (
                         <tr key={row.month} className="border-b border-border/30 hover:bg-muted/30 transition-colors">
                           <td className="p-3 font-medium">{row.month}</td>
-                          <td className="p-3 text-right">${row.revenue.toFixed(2)}</td>
-                          <td className="p-3 text-right text-destructive">${row.cost.toFixed(2)}</td>
-                          <td className="p-3 text-right text-success">${row.profit.toFixed(2)}</td>
+                          <td className="p-3 text-right">Rs. {row.revenue.toFixed(0)}</td>
+                          <td className="p-3 text-right text-destructive">Rs. {row.cost.toFixed(0)}</td>
+                          <td className="p-3 text-right text-success">Rs. {row.profit.toFixed(0)}</td>
                           <td className="p-3 text-right">{row.revenue > 0 ? ((row.profit / row.revenue) * 100).toFixed(1) : 0}%</td>
                         </tr>
                       ))}

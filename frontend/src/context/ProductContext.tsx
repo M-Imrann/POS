@@ -1,5 +1,5 @@
 import { createContext, useContext, useState, useEffect, useCallback, type ReactNode } from "react";
-import { products as productsApi, sales as salesApi, stockEntries as stockEntriesApi, imageUrl, type ApiStockEntry } from "@/lib/api";
+import { products as productsApi, sales as salesApi, stockEntries as stockEntriesApi, type ApiStockEntry } from "@/lib/api";
 import { useAuth } from "@/context/AuthContext";
 
 export interface Product {
@@ -47,7 +47,7 @@ function apiToProduct(row: import("@/lib/api").ApiProduct): Product {
     cost: Number(row.cost),
     stock: row.stock,
     barcode: row.barcode || "",
-    imageUrl: imageUrl(row.image_url),
+    imageUrl: undefined,
     size: row.size || undefined,
     color: row.color || undefined,
     material: row.material || undefined,
@@ -60,7 +60,7 @@ interface ProductContextType {
   sales: Sale[];
   stockEntries: DbStockEntry[];
   loading: boolean;
-  addProduct: (product: Omit<Product, "id">, imageFile?: File) => Promise<void>;
+  addProduct: (product: Omit<Product, "id">) => Promise<void>;
   removeProduct: (productId: string) => Promise<void>;
   updateStock: (productId: string, newStock: number) => Promise<void>;
   addSale: (cart: CartItem[], subtotal: number, tax: number, discount: number, total: number) => Promise<Sale>;
@@ -135,7 +135,7 @@ export function ProductProvider({ children }: { children: ReactNode }) {
     init();
   }, [user, refreshProducts, fetchSales, fetchStockEntries]);
 
-  const addProduct = async (product: Omit<Product, "id">, imageFile?: File) => {
+  const addProduct = async (product: Omit<Product, "id">) => {
     if (!user) return;
     const data: Record<string, string | number> = {
       name: product.name,
@@ -151,7 +151,7 @@ export function ProductProvider({ children }: { children: ReactNode }) {
     if (product.color) data.color = product.color;
     if (product.material) data.material = product.material;
 
-    await productsApi.create(data, imageFile);
+    await productsApi.create(data);
     await refreshProducts();
   };
 

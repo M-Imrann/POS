@@ -35,7 +35,7 @@ export default function DashboardPage() {
     },
     {
       label: "Total Revenue",
-      value: `$${totalRevenue.toFixed(2)}`,
+      value: `Rs. ${totalRevenue.toFixed(0)}`,
       icon: DollarSign,
       change: `${sales.length} sales`,
       trend: "up" as const,
@@ -102,7 +102,7 @@ export default function DashboardPage() {
                     </p>
                   </div>
                   <div className="text-right">
-                    <p className="font-semibold text-sm">${sale.total.toFixed(2)}</p>
+                    <p className="font-semibold text-sm">Rs. {sale.total.toFixed(0)}</p>
                     <span className="text-xs px-2 py-0.5 rounded-full bg-secondary text-secondary-foreground">
                       {sale.paymentMode}
                     </span>

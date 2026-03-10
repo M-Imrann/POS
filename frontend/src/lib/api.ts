@@ -135,23 +135,11 @@ export const products = {
     return get<{ products: ApiProduct[] }>(`/api/products${qs}`);
   },
 
-  create: (data: Record<string, string | number>, imageFile?: File) => {
-    const form = new FormData();
-    for (const [k, v] of Object.entries(data)) {
-      form.append(k, String(v));
-    }
-    if (imageFile) form.append("image", imageFile);
-    return postForm<{ product: ApiProduct }>("/api/products", form);
-  },
+  create: (data: Record<string, string | number>) =>
+    post<{ product: ApiProduct }>("/api/products", data),
 
-  update: (id: string, data: Record<string, string | number>, imageFile?: File) => {
-    const form = new FormData();
-    for (const [k, v] of Object.entries(data)) {
-      form.append(k, String(v));
-    }
-    if (imageFile) form.append("image", imageFile);
-    return putForm<{ product: ApiProduct }>(`/api/products/${id}`, form);
-  },
+  update: (id: string, data: Record<string, string | number>) =>
+    put<{ product: ApiProduct }>(`/api/products/${id}`, data),
 
   updateStock: (id: string, stock: number) =>
     patch<{ product: ApiProduct }>(`/api/products/${id}/stock`, { stock }),

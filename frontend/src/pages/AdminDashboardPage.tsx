@@ -71,7 +71,7 @@ export default function AdminDashboardPage() {
         {[
           { label: "Products", value: products.length, icon: Package, color: "primary" },
           { label: "Sales", value: sales.length, icon: ShoppingCart, color: "primary" },
-          { label: "Revenue", value: `$${totalRevenue.toFixed(2)}`, icon: TrendingUp, color: "primary" },
+          { label: "Revenue", value: `Rs. ${totalRevenue.toFixed(0)}`, icon: TrendingUp, color: "primary" },
           { label: "Low Stock", value: lowStockCount, icon: Package, color: "destructive" },
         ].map(({ label, value, icon: Icon, color }) => (
           <div key={label} className="stat-card">
@@ -112,8 +112,8 @@ export default function AdminDashboardPage() {
                       <td className="p-3"><p className="font-medium">{p.name}</p><p className="text-xs text-muted-foreground">{p.category} / {p.subcategory}</p></td>
                       <td className="p-3 text-muted-foreground text-xs">{getUserLabel(p.user_id)}</td>
                       <td className="p-3 text-center"><Badge variant={p.stock <= p.low_stock_threshold ? "destructive" : "secondary"}>{p.stock}</Badge></td>
-                      <td className="p-3 text-right">${Number(p.price).toFixed(2)}</td>
-                      <td className="p-3 text-right text-muted-foreground">${Number(p.cost).toFixed(2)}</td>
+                      <td className="p-3 text-right">Rs. {Number(p.price).toFixed(0)}</td>
+                      <td className="p-3 text-right text-muted-foreground">Rs. {Number(p.cost).toFixed(0)}</td>
                     </tr>
                   ))}
                   {products.length === 0 && <tr><td colSpan={5} className="p-6 text-center text-muted-foreground">No products found</td></tr>}
@@ -144,7 +144,7 @@ export default function AdminDashboardPage() {
                       <td className="p-3 font-medium">{s.sale_number}</td>
                       <td className="p-3 text-muted-foreground text-xs">{getUserLabel(s.user_id)}</td>
                       <td className="p-3 text-center"><Badge variant="secondary">{s.payment_mode}</Badge></td>
-                      <td className="p-3 text-right font-medium">${Number(s.total).toFixed(2)}</td>
+                      <td className="p-3 text-right font-medium">Rs. {Number(s.total).toFixed(0)}</td>
                       <td className="p-3 text-right text-muted-foreground text-xs">{new Date(s.created_at).toLocaleString()}</td>
                     </tr>
                   ))}

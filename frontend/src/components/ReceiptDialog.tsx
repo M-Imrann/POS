@@ -40,13 +40,13 @@ export default function ReceiptDialog({
     text += `Date: ${date}\n`;
     text += `${"─".repeat(32)}\n`;
     items.forEach((item) => {
-      text += `${item.product.name} x${item.quantity} - $${(item.product.price * item.quantity).toFixed(2)}\n`;
+      text += `${item.product.name} x${item.quantity} - Rs. ${(item.product.price * item.quantity).toFixed(0)}\n`;
     });
     text += `${"─".repeat(32)}\n`;
-    text += `Subtotal: $${subtotal.toFixed(2)}\n`;
-    text += `Tax (8%): $${tax.toFixed(2)}\n`;
-    if (discount > 0) text += `Discount: -$${discount.toFixed(2)}\n`;
-    text += `TOTAL: $${total.toFixed(2)}\n`;
+    text += `Subtotal: Rs. ${subtotal.toFixed(0)}\n`;
+    text += `Tax (8%): Rs. ${tax.toFixed(0)}\n`;
+    if (discount > 0) text += `Discount: -Rs. ${discount.toFixed(0)}\n`;
+    text += `TOTAL: Rs. ${total.toFixed(0)}\n`;
     text += `\nThank you for your purchase!`;
     return text;
   };
@@ -97,7 +97,7 @@ export default function ReceiptDialog({
                   {item.product.name} × {item.quantity}
                 </span>
                 <span className="font-medium shrink-0">
-                  ${(item.product.price * item.quantity).toFixed(2)}
+                  Rs. {(item.product.price * item.quantity).toFixed(0)}
                 </span>
               </div>
             ))}
@@ -106,21 +106,21 @@ export default function ReceiptDialog({
           <div className="border-t border-dashed border-border pt-3 space-y-1.5 text-xs">
             <div className="flex justify-between">
               <span className="text-muted-foreground">Subtotal</span>
-              <span>${subtotal.toFixed(2)}</span>
+              <span>Rs. {subtotal.toFixed(0)}</span>
             </div>
             <div className="flex justify-between">
               <span className="text-muted-foreground">Tax (8%)</span>
-              <span>${tax.toFixed(2)}</span>
+              <span>Rs. {tax.toFixed(0)}</span>
             </div>
             {discount > 0 && (
               <div className="flex justify-between">
                 <span className="text-muted-foreground">Discount</span>
-                <span>-${discount.toFixed(2)}</span>
+                <span>-Rs. {discount.toFixed(0)}</span>
               </div>
             )}
             <div className="flex justify-between font-bold text-sm border-t border-dashed border-border pt-2">
               <span>TOTAL</span>
-              <span className="text-primary">${total.toFixed(2)}</span>
+              <span className="text-primary">Rs. {total.toFixed(0)}</span>
             </div>
           </div>
 
